@@ -69,30 +69,89 @@ const assets = fsPromises.readdir(assetsDir, { withFileTypes: true });
 const projectAssets = path.resolve(projectDist, 'assets');
 fsPromises.mkdir(projectAssets, { recursive: true });
 
-assets
-  .then((dirs) => {
-    dirs.forEach((dir) => {
-      const assetDirectoryFiles = fsPromises.readdir(
-        path.resolve(assetsDir, dir.name),
-        {
-          withFileTypes: true,
-        },
-      );
+function copyAssets(assets) {
+  assets
+    .then((dirs) => {
+      dirs.forEach((dir) => {
+        const assetDirectoryFiles = fsPromises.readdir(
+          path.resolve(assetsDir, dir.name),
+          {
+            withFileTypes: true,
+          },
+        );
 
-      // create folders
-      fsPromises.mkdir(path.resolve(projectAssets, dir.name), {
-        recursive: true,
-      });
+        // create folders
+        fsPromises.mkdir(path.resolve(projectAssets, dir.name), {
+          recursive: true,
+        });
 
-      assetDirectoryFiles.then((files) => {
-        files.forEach((file) => {
-          const src = path.resolve(assetsDir, dir.name, file.name);
-          const target = path.resolve(projectAssets, dir.name, file.name);
-          fsPromises.copyFile(src, target);
+        assetDirectoryFiles.then((files) => {
+          files.forEach((file) => {
+            const src = path.resolve(assetsDir, dir.name, file.name);
+            const target = path.resolve(projectAssets, dir.name, file.name);
+            fsPromises.copyFile(src, target);
+          });
         });
       });
+    })
+    .catch((err) => {
+      console.log(err);
     });
-  })
-  .catch((err) => {
-    console.log(err);
+}
+setTimeout(() => {
+  copyAssets(assets);
+}, 300);
+
+setTimeout(() => {
+  const projectAssetsDirs = fsPromises.readdir(projectAssets, {
+    withFileTypes: true,
   });
+  deleteOldAssets(projectAssetsDirs);
+}, 100);
+
+function deleteOldAssets(assets) {
+  assets
+    .then((dirs) => {
+      dirs.forEach((dir) => {
+        if (dirs.length > 0) {
+          // const assetDirectoryFiles = fsPromises.readdir(
+          //   path.resolve(projectAssets, dir.name),
+          //   {
+          //     withFileTypes: true,
+          //   },
+          // );
+
+          // assetDirectoryFiles.then((files) => {
+          //   files.forEach((file) => {
+          //     const target = path.resolve(projectAssets, dir.name, file.name);
+          //     fsPromises.unlink(target);
+          //   });
+          // });
+          fsPromises.rm(path.resolve(projectAssets, dir.name), {
+            recursive: true,
+            force: true,
+          });
+        }
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
+/*
+
+function clearTargetDir(targetFiles) {
+  if (fsPromises.access(targetPath)) {
+    targetFiles.then((files) => {
+      if (files.length > 0) {
+        files.forEach((file) => {
+          const target = path.resolve(targetPath, file.name);
+          fsPromises.unlink(target);
+        });
+      }
+    });
+  }
+}
+
+*/
