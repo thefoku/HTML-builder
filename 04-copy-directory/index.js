@@ -4,19 +4,20 @@ const fsPromises = require('node:fs/promises');
 const sourcePath = path.resolve(__dirname, 'files');
 const targetPath = path.resolve(__dirname, 'files-copy');
 const files = fsPromises.readdir(sourcePath, { withFileTypes: true });
-const targetFiles = fsPromises.readdir(targetPath, { withFileTypes: true });
 
 fsPromises.mkdir(targetPath, { recursive: true });
 
 function clearTargetDir(targetFiles) {
-  targetFiles.then((files) => {
-    if (files.length > 0) {
+  if (targetFiles) {
+    targetFiles.then((files) => {
       files.forEach((file) => {
-        const target = path.resolve(targetPath, file.name);
-        fsPromises.unlink(target);
+        fsPromises.rm(path.resolve(targetPath, file.name), {
+          recursive: true,
+          force: true,
+        });
       });
-    }
-  });
+    });
+  }
 }
 
 function addFiles(files) {
@@ -35,7 +36,11 @@ function addFiles(files) {
     });
 }
 
-clearTargetDir(targetFiles);
+setTimeout(() => {
+  const targetFiles = fsPromises.readdir(targetPath, { withFileTypes: true });
+  clearTargetDir(targetFiles);
+}, 100);
+
 setTimeout(() => {
   addFiles(files);
-}, 1000);
+}, 200);
