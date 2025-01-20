@@ -114,19 +114,6 @@ function deleteOldAssets(assets) {
     .then((dirs) => {
       dirs.forEach((dir) => {
         if (dirs.length > 0) {
-          // const assetDirectoryFiles = fsPromises.readdir(
-          //   path.resolve(projectAssets, dir.name),
-          //   {
-          //     withFileTypes: true,
-          //   },
-          // );
-
-          // assetDirectoryFiles.then((files) => {
-          //   files.forEach((file) => {
-          //     const target = path.resolve(projectAssets, dir.name, file.name);
-          //     fsPromises.unlink(target);
-          //   });
-          // });
           fsPromises.rm(path.resolve(projectAssets, dir.name), {
             recursive: true,
             force: true,
@@ -138,20 +125,3 @@ function deleteOldAssets(assets) {
       console.log(err);
     });
 }
-
-/*
-
-function clearTargetDir(targetFiles) {
-  if (fsPromises.access(targetPath)) {
-    targetFiles.then((files) => {
-      if (files.length > 0) {
-        files.forEach((file) => {
-          const target = path.resolve(targetPath, file.name);
-          fsPromises.unlink(target);
-        });
-      }
-    });
-  }
-}
-
-*/
